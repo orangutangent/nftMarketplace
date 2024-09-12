@@ -3,8 +3,8 @@
 import { PinataSDK } from "pinata";
 
 const pinata = new PinataSDK({
-  pinataJwt: process.env.NEXT_PUBLIC_PINATA_JWT,
-  pinataGateway: process.env.NEXT_PUBLIC_PINATA_DOMAIN!,
+  pinataJwt: process.env.PINATA_JWT,
+  pinataGateway: process.env.PINATA_DOMAIN!,
 });
 
 const pinataURL = "https://gateway.pinata.cloud/ipfs/";
