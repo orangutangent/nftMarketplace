@@ -8,7 +8,7 @@ import { NFTItem } from "@/entities/NFTItem";
 import { NFTItemSkeleton } from "@/entities/NFTItemSkeleton";
 type NFT = NFTMarketplace.ListedTokenStructOutput;
 import { motion, AnimatePresence } from "framer-motion";
-import { CreateNFT } from "@/features/createNFT";
+import { toast } from "sonner";
 import { ethers } from "ethers";
 
 export const MyNFTDesk = () => {
@@ -20,30 +20,45 @@ export const MyNFTDesk = () => {
   useEffect(() => {
     if (!nfts || !contract) return;
     (async () => {
-      const _items = await Promise.all(
-        nfts.map(async (nft) => {
-          const uri = await contract.tokenURI(nft.tokenId);
-          const response = await axios.get(uri);
-          return {
-            id: Number(nft.tokenId),
-            owner: nft.owner,
-            creator: nft.creator,
-            ...response.data,
-          };
-        })
-      );
-      console.log("MyNFT", _items);
-      setItems(_items);
-      setLoading(false);
+      try {
+        const _items = await Promise.all(
+          nfts.map(async (nft) => {
+            const uri = await contract.tokenURI(nft.tokenId);
+            const response = await axios.get(uri);
+            return {
+              ...response.data,
+              id: Number(nft.tokenId),
+              owner: nft.owner,
+              creator: nft.creator,
+              price: ethers.formatEther(nft.price),
+              currentlyListed: nft.currentlyListed,
+            };
+          })
+        );
+        setItems(_items);
+        setLoading(false);
+      } catch (error: any) {
+        console.log(error?.message);
+        toast.error("Something went wrong");
+      } finally {
+        setLoading(false);
+      }
     })();
   }, [nfts, contract]);
 
   useEffect(() => {
     (async () => {
       if (!contract) return;
-      const _nfts = await contract.getMyNFTs();
-      console.log("MyNFT", _nfts);
-      setNfts(_nfts);
+      try {
+        const _nfts = await contract.getMyNFTs();
+        setNfts(_nfts);
+      } catch (error: any) {
+        if (error.code === "BAD_DATA") {
+          toast.error("Received empty response.");
+          return;
+        }
+        toast.error("Something went wrong");
+      }
     })();
   }, [contract]);
 
@@ -54,12 +69,17 @@ export const MyNFTDesk = () => {
       </div>
     );
 
+  if (!nfts || nfts.length === 0)
+    return (
+      <div className=" text-center mt-20">
+        <h2 className="text-3xl font-bold">You don't own any NFT</h2>
+        <p className="text-3xl font-bold">You can create one or buy one</p>
+      </div>
+    );
+
   return (
     <AnimatePresence>
-      <div className="w-full min-h-screen relative ">
-        <div className=" w-full z-20 absolute">
-          <CreateNFT />
-        </div>
+      <div className="w-full min-h-screen  ">
         <div className="grid grid-cols-[repeat(auto-fit,minmax(320px,1fr))] gap-4 w-full pt-24">
           {loading
             ? Array.from({ length: 3 }).map((_, i) => (

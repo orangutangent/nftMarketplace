@@ -31,13 +31,13 @@ interface NFTFormProps {
 export function NFTForm({ onSuccess }: NFTFormProps) {
   const { contract } = useContract();
   const [loading, setLoading] = React.useState(false);
-  // const [success, setSuccess] = React.useState(false);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
       description: "",
       price: "0",
+      royalty: "0",
       image: null,
     },
   });
@@ -54,51 +54,21 @@ export function NFTForm({ onSuccess }: NFTFormProps) {
       formData.append("name", values.name);
       formData.append("description", values.description);
       formData.append("file", values.image as File);
-      formData.append("price", values.price);
 
       const res = await uploadMetadataToIPFS(formData);
 
       if (res.success && contract && res.metadata) {
         const metadataURL = res.metadata;
-        console.log("metadataURL: ", metadataURL);
         const tx = await contract.createToken(
           metadataURL,
           ethers.parseEther(values.price),
-          10
+          ethers.toBigInt(values.royalty)
         );
         await tx.wait();
-        console.log("Transaction successful!");
         toast.success("✅ Your NFT was uploaded to the IPFS network.");
         onSuccess?.();
         form.reset();
       }
-
-      // const res = await uploadFileToIPFS(values.image as File);
-
-      // if (res.success) {
-      //   const url = res?.pinataURL;
-      //   const { name, description, price } = values;
-      //   const data = JSON.stringify({
-      //     name,
-      //     description,
-      //     image: url,
-      //     price,
-      //   });
-      //   const response = await uploadJSONToIPFS(data);
-      //   if (response.success && contract) {
-      //     const metadataURL = response.pinataURL;
-      //     const tx = await contract.createToken(
-      //       metadataURL,
-      //       ethers.parseEther(price),
-      //       10
-      //     );
-      //     await tx.wait();
-      //     console.log("Transaction successful!");
-      //     toast.success("✅ Your NFT was uploaded to the IPFS network.");
-      //     onSuccess?.();
-      //     form.reset();
-      //   }
-      // }
     } catch (error) {
       toast.error("Something went wrong");
       setLoading(false);
@@ -118,39 +88,6 @@ export function NFTForm({ onSuccess }: NFTFormProps) {
     );
   }
 
-  async function upload(data: FormData) {
-    setLoading(true);
-    let loadingToast;
-    try {
-      loadingToast = toast.loading("Creating your NFT...", {
-        id: "create-nft",
-      });
-
-      const res = await uploadMetadataToIPFS(data);
-      if (res.success && contract && res.metadata) {
-        const price = data.get("price") as string;
-        const metadataURL = res.metadata;
-        const tx = await contract.createToken(
-          metadataURL,
-          ethers.parseEther(price),
-          10
-        );
-        await tx.wait();
-        console.log("Transaction successful!");
-        toast.success("✅ Your NFT was uploaded to the IPFS network.");
-        onSuccess?.();
-        form.reset();
-      }
-    } catch (error) {
-      toast.error("Something went wrong");
-      setLoading(false);
-      return;
-    } finally {
-      toast.dismiss(loadingToast);
-    }
-    setLoading(false);
-  }
-
   return (
     <AnimatePresence>
       <motion.div
@@ -162,7 +99,6 @@ export function NFTForm({ onSuccess }: NFTFormProps) {
       >
         <Form {...form}>
           <form
-            // action={async (data) => await upload(data)}
             onSubmit={form.handleSubmit(onSubmit)}
             className="space-y-2 min-w-[400px] bg-background rounded-xl p-4"
           >
@@ -207,7 +143,23 @@ export function NFTForm({ onSuccess }: NFTFormProps) {
                     <Input placeholder="0.0" {...field} />
                   </FormControl>
                   <FormDescription>
-                    This is price of your NFT in ETH.
+                    This is price of your NFT in MATIC.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="royalty"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Royalty</FormLabel>
+                  <FormControl>
+                    <Input placeholder="0" {...field} />
+                  </FormControl>
+                  <FormDescription>
+                    This is your royalty for this NFT {"(%)"}.
                   </FormDescription>
                   <FormMessage />
                 </FormItem>

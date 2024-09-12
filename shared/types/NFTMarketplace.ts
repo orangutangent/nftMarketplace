@@ -27,29 +27,55 @@ export declare namespace NFTMarketplace {
   export type ListedTokenStruct = {
     tokenId: BigNumberish;
     owner: AddressLike;
-    seller: AddressLike;
+    creator: AddressLike;
     price: BigNumberish;
     currentlyListed: boolean;
+    royalty: BigNumberish;
   };
 
   export type ListedTokenStructOutput = [
     tokenId: bigint,
     owner: string,
-    seller: string,
+    creator: string,
     price: bigint,
-    currentlyListed: boolean
+    currentlyListed: boolean,
+    royalty: bigint
   ] & {
     tokenId: bigint;
     owner: string;
-    seller: string;
+    creator: string;
     price: bigint;
     currentlyListed: boolean;
+    royalty: bigint;
+  };
+
+  export type SaleHistoryStruct = {
+    tokenId: BigNumberish;
+    previousOwner: AddressLike;
+    newOwner: AddressLike;
+    salePrice: BigNumberish;
+    saleTimestamp: BigNumberish;
+  };
+
+  export type SaleHistoryStructOutput = [
+    tokenId: bigint,
+    previousOwner: string,
+    newOwner: string,
+    salePrice: bigint,
+    saleTimestamp: bigint
+  ] & {
+    tokenId: bigint;
+    previousOwner: string;
+    newOwner: string;
+    salePrice: bigint;
+    saleTimestamp: bigint;
   };
 }
 
 export interface NFTMarketplaceInterface extends Interface {
   getFunction(
     nameOrSignature:
+      | "__ReentrancyGuardUpgradeable_Init__"
       | "approve"
       | "balanceOf"
       | "createToken"
@@ -57,20 +83,25 @@ export interface NFTMarketplaceInterface extends Interface {
       | "getAllNFTs"
       | "getApproved"
       | "getCurrentToken"
-      | "getLatestIdToListedToken"
       | "getListPrice"
-      | "getListedTokenForId"
+      | "getListedNFTs"
       | "getMyNFTs"
+      | "getSaleHistory"
+      | "getTokenById"
+      | "initialize"
       | "isApprovedForAll"
+      | "listTokenForSale"
       | "name"
       | "ownerOf"
       | "safeTransferFrom(address,address,uint256)"
       | "safeTransferFrom(address,address,uint256,bytes)"
       | "setApprovalForAll"
+      | "setListPrice"
       | "supportsInterface"
       | "symbol"
       | "tokenURI"
       | "transferFrom"
+      | "two"
       | "updateListPrice"
   ): FunctionFragment;
 
@@ -79,11 +110,17 @@ export interface NFTMarketplaceInterface extends Interface {
       | "Approval"
       | "ApprovalForAll"
       | "BatchMetadataUpdate"
+      | "Initialized"
       | "MetadataUpdate"
       | "TokenListedSuccess"
+      | "TokenSold"
       | "Transfer"
   ): EventFragment;
 
+  encodeFunctionData(
+    functionFragment: "__ReentrancyGuardUpgradeable_Init__",
+    values?: undefined
+  ): string;
   encodeFunctionData(
     functionFragment: "approve",
     values: [AddressLike, BigNumberish]
@@ -94,7 +131,7 @@ export interface NFTMarketplaceInterface extends Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "createToken",
-    values: [string, BigNumberish]
+    values: [string, BigNumberish, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "executeSale",
@@ -113,21 +150,33 @@ export interface NFTMarketplaceInterface extends Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "getLatestIdToListedToken",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
     functionFragment: "getListPrice",
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "getListedTokenForId",
-    values: [BigNumberish]
+    functionFragment: "getListedNFTs",
+    values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "getMyNFTs", values?: undefined): string;
   encodeFunctionData(
+    functionFragment: "getSaleHistory",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getTokenById",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "initialize",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "isApprovedForAll",
     values: [AddressLike, AddressLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "listTokenForSale",
+    values: [BigNumberish, BigNumberish]
   ): string;
   encodeFunctionData(functionFragment: "name", values?: undefined): string;
   encodeFunctionData(
@@ -147,6 +196,10 @@ export interface NFTMarketplaceInterface extends Interface {
     values: [AddressLike, boolean]
   ): string;
   encodeFunctionData(
+    functionFragment: "setListPrice",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
     functionFragment: "supportsInterface",
     values: [BytesLike]
   ): string;
@@ -159,11 +212,16 @@ export interface NFTMarketplaceInterface extends Interface {
     functionFragment: "transferFrom",
     values: [AddressLike, AddressLike, BigNumberish]
   ): string;
+  encodeFunctionData(functionFragment: "two", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "updateListPrice",
     values: [BigNumberish]
   ): string;
 
+  decodeFunctionResult(
+    functionFragment: "__ReentrancyGuardUpgradeable_Init__",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "approve", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "balanceOf", data: BytesLike): Result;
   decodeFunctionResult(
@@ -184,20 +242,29 @@ export interface NFTMarketplaceInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "getLatestIdToListedToken",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "getListPrice",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "getListedTokenForId",
+    functionFragment: "getListedNFTs",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "getMyNFTs", data: BytesLike): Result;
   decodeFunctionResult(
+    functionFragment: "getSaleHistory",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getTokenById",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
+  decodeFunctionResult(
     functionFragment: "isApprovedForAll",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "listTokenForSale",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "name", data: BytesLike): Result;
@@ -215,6 +282,10 @@ export interface NFTMarketplaceInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "setListPrice",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "supportsInterface",
     data: BytesLike
   ): Result;
@@ -224,6 +295,7 @@ export interface NFTMarketplaceInterface extends Interface {
     functionFragment: "transferFrom",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "two", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "updateListPrice",
     data: BytesLike
@@ -286,6 +358,18 @@ export namespace BatchMetadataUpdateEvent {
   export type LogDescription = TypedLogDescription<Event>;
 }
 
+export namespace InitializedEvent {
+  export type InputTuple = [version: BigNumberish];
+  export type OutputTuple = [version: bigint];
+  export interface OutputObject {
+    version: bigint;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
+}
+
 export namespace MetadataUpdateEvent {
   export type InputTuple = [_tokenId: BigNumberish];
   export type OutputTuple = [_tokenId: bigint];
@@ -302,23 +386,48 @@ export namespace TokenListedSuccessEvent {
   export type InputTuple = [
     tokenId: BigNumberish,
     owner: AddressLike,
-    seller: AddressLike,
+    creator: AddressLike,
     price: BigNumberish,
     currentlyListed: boolean
   ];
   export type OutputTuple = [
     tokenId: bigint,
     owner: string,
-    seller: string,
+    creator: string,
     price: bigint,
     currentlyListed: boolean
   ];
   export interface OutputObject {
     tokenId: bigint;
     owner: string;
-    seller: string;
+    creator: string;
     price: bigint;
     currentlyListed: boolean;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
+}
+
+export namespace TokenSoldEvent {
+  export type InputTuple = [
+    tokenId: BigNumberish,
+    previousOwner: AddressLike,
+    newOwner: AddressLike,
+    salePrice: BigNumberish
+  ];
+  export type OutputTuple = [
+    tokenId: bigint,
+    previousOwner: string,
+    newOwner: string,
+    salePrice: bigint
+  ];
+  export interface OutputObject {
+    tokenId: bigint;
+    previousOwner: string;
+    newOwner: string;
+    salePrice: bigint;
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
   export type Filter = TypedDeferredTopicFilter<Event>;
@@ -387,6 +496,12 @@ export interface NFTMarketplace extends BaseContract {
     event?: TCEvent
   ): Promise<this>;
 
+  __ReentrancyGuardUpgradeable_Init__: TypedContractMethod<
+    [],
+    [void],
+    "nonpayable"
+  >;
+
   approve: TypedContractMethod<
     [to: AddressLike, tokenId: BigNumberish],
     [void],
@@ -396,9 +511,9 @@ export interface NFTMarketplace extends BaseContract {
   balanceOf: TypedContractMethod<[owner: AddressLike], [bigint], "view">;
 
   createToken: TypedContractMethod<
-    [tokenURI: string, price: BigNumberish],
+    [tokenURI: string, price: BigNumberish, royalty: BigNumberish],
     [bigint],
-    "payable"
+    "nonpayable"
   >;
 
   executeSale: TypedContractMethod<[tokenId: BigNumberish], [void], "payable">;
@@ -413,17 +528,11 @@ export interface NFTMarketplace extends BaseContract {
 
   getCurrentToken: TypedContractMethod<[], [bigint], "view">;
 
-  getLatestIdToListedToken: TypedContractMethod<
-    [],
-    [NFTMarketplace.ListedTokenStructOutput],
-    "view"
-  >;
-
   getListPrice: TypedContractMethod<[], [bigint], "view">;
 
-  getListedTokenForId: TypedContractMethod<
-    [tokenId: BigNumberish],
-    [NFTMarketplace.ListedTokenStructOutput],
+  getListedNFTs: TypedContractMethod<
+    [],
+    [NFTMarketplace.ListedTokenStructOutput[]],
     "view"
   >;
 
@@ -433,10 +542,30 @@ export interface NFTMarketplace extends BaseContract {
     "view"
   >;
 
+  getSaleHistory: TypedContractMethod<
+    [tokenId: BigNumberish],
+    [NFTMarketplace.SaleHistoryStructOutput[]],
+    "view"
+  >;
+
+  getTokenById: TypedContractMethod<
+    [id: BigNumberish],
+    [NFTMarketplace.ListedTokenStructOutput],
+    "view"
+  >;
+
+  initialize: TypedContractMethod<[], [void], "nonpayable">;
+
   isApprovedForAll: TypedContractMethod<
     [owner: AddressLike, operator: AddressLike],
     [boolean],
     "view"
+  >;
+
+  listTokenForSale: TypedContractMethod<
+    [tokenId: BigNumberish, price: BigNumberish],
+    [void],
+    "payable"
   >;
 
   name: TypedContractMethod<[], [string], "view">;
@@ -466,6 +595,12 @@ export interface NFTMarketplace extends BaseContract {
     "nonpayable"
   >;
 
+  setListPrice: TypedContractMethod<
+    [_listPrice: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
+
   supportsInterface: TypedContractMethod<
     [interfaceId: BytesLike],
     [boolean],
@@ -482,6 +617,8 @@ export interface NFTMarketplace extends BaseContract {
     "nonpayable"
   >;
 
+  two: TypedContractMethod<[], [bigint], "view">;
+
   updateListPrice: TypedContractMethod<
     [_listPrice: BigNumberish],
     [void],
@@ -492,6 +629,9 @@ export interface NFTMarketplace extends BaseContract {
     key: string | FunctionFragment
   ): T;
 
+  getFunction(
+    nameOrSignature: "__ReentrancyGuardUpgradeable_Init__"
+  ): TypedContractMethod<[], [void], "nonpayable">;
   getFunction(
     nameOrSignature: "approve"
   ): TypedContractMethod<
@@ -505,9 +645,9 @@ export interface NFTMarketplace extends BaseContract {
   getFunction(
     nameOrSignature: "createToken"
   ): TypedContractMethod<
-    [tokenURI: string, price: BigNumberish],
+    [tokenURI: string, price: BigNumberish, royalty: BigNumberish],
     [bigint],
-    "payable"
+    "nonpayable"
   >;
   getFunction(
     nameOrSignature: "executeSale"
@@ -526,16 +666,13 @@ export interface NFTMarketplace extends BaseContract {
     nameOrSignature: "getCurrentToken"
   ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
-    nameOrSignature: "getLatestIdToListedToken"
-  ): TypedContractMethod<[], [NFTMarketplace.ListedTokenStructOutput], "view">;
-  getFunction(
     nameOrSignature: "getListPrice"
   ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
-    nameOrSignature: "getListedTokenForId"
+    nameOrSignature: "getListedNFTs"
   ): TypedContractMethod<
-    [tokenId: BigNumberish],
-    [NFTMarketplace.ListedTokenStructOutput],
+    [],
+    [NFTMarketplace.ListedTokenStructOutput[]],
     "view"
   >;
   getFunction(
@@ -546,11 +683,35 @@ export interface NFTMarketplace extends BaseContract {
     "view"
   >;
   getFunction(
+    nameOrSignature: "getSaleHistory"
+  ): TypedContractMethod<
+    [tokenId: BigNumberish],
+    [NFTMarketplace.SaleHistoryStructOutput[]],
+    "view"
+  >;
+  getFunction(
+    nameOrSignature: "getTokenById"
+  ): TypedContractMethod<
+    [id: BigNumberish],
+    [NFTMarketplace.ListedTokenStructOutput],
+    "view"
+  >;
+  getFunction(
+    nameOrSignature: "initialize"
+  ): TypedContractMethod<[], [void], "nonpayable">;
+  getFunction(
     nameOrSignature: "isApprovedForAll"
   ): TypedContractMethod<
     [owner: AddressLike, operator: AddressLike],
     [boolean],
     "view"
+  >;
+  getFunction(
+    nameOrSignature: "listTokenForSale"
+  ): TypedContractMethod<
+    [tokenId: BigNumberish, price: BigNumberish],
+    [void],
+    "payable"
   >;
   getFunction(
     nameOrSignature: "name"
@@ -585,6 +746,9 @@ export interface NFTMarketplace extends BaseContract {
     "nonpayable"
   >;
   getFunction(
+    nameOrSignature: "setListPrice"
+  ): TypedContractMethod<[_listPrice: BigNumberish], [void], "nonpayable">;
+  getFunction(
     nameOrSignature: "supportsInterface"
   ): TypedContractMethod<[interfaceId: BytesLike], [boolean], "view">;
   getFunction(
@@ -600,6 +764,9 @@ export interface NFTMarketplace extends BaseContract {
     [void],
     "nonpayable"
   >;
+  getFunction(
+    nameOrSignature: "two"
+  ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
     nameOrSignature: "updateListPrice"
   ): TypedContractMethod<[_listPrice: BigNumberish], [void], "payable">;
@@ -626,6 +793,13 @@ export interface NFTMarketplace extends BaseContract {
     BatchMetadataUpdateEvent.OutputObject
   >;
   getEvent(
+    key: "Initialized"
+  ): TypedContractEvent<
+    InitializedEvent.InputTuple,
+    InitializedEvent.OutputTuple,
+    InitializedEvent.OutputObject
+  >;
+  getEvent(
     key: "MetadataUpdate"
   ): TypedContractEvent<
     MetadataUpdateEvent.InputTuple,
@@ -638,6 +812,13 @@ export interface NFTMarketplace extends BaseContract {
     TokenListedSuccessEvent.InputTuple,
     TokenListedSuccessEvent.OutputTuple,
     TokenListedSuccessEvent.OutputObject
+  >;
+  getEvent(
+    key: "TokenSold"
+  ): TypedContractEvent<
+    TokenSoldEvent.InputTuple,
+    TokenSoldEvent.OutputTuple,
+    TokenSoldEvent.OutputObject
   >;
   getEvent(
     key: "Transfer"
@@ -681,6 +862,17 @@ export interface NFTMarketplace extends BaseContract {
       BatchMetadataUpdateEvent.OutputObject
     >;
 
+    "Initialized(uint64)": TypedContractEvent<
+      InitializedEvent.InputTuple,
+      InitializedEvent.OutputTuple,
+      InitializedEvent.OutputObject
+    >;
+    Initialized: TypedContractEvent<
+      InitializedEvent.InputTuple,
+      InitializedEvent.OutputTuple,
+      InitializedEvent.OutputObject
+    >;
+
     "MetadataUpdate(uint256)": TypedContractEvent<
       MetadataUpdateEvent.InputTuple,
       MetadataUpdateEvent.OutputTuple,
@@ -701,6 +893,17 @@ export interface NFTMarketplace extends BaseContract {
       TokenListedSuccessEvent.InputTuple,
       TokenListedSuccessEvent.OutputTuple,
       TokenListedSuccessEvent.OutputObject
+    >;
+
+    "TokenSold(uint256,address,address,uint256)": TypedContractEvent<
+      TokenSoldEvent.InputTuple,
+      TokenSoldEvent.OutputTuple,
+      TokenSoldEvent.OutputObject
+    >;
+    TokenSold: TypedContractEvent<
+      TokenSoldEvent.InputTuple,
+      TokenSoldEvent.OutputTuple,
+      TokenSoldEvent.OutputObject
     >;
 
     "Transfer(address,address,uint256)": TypedContractEvent<

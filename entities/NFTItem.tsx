@@ -2,38 +2,17 @@
 import React from "react";
 import Image from "next/image";
 import { INFTItem } from "@/shared/types/NFTItem";
-import { Button } from "@/shared/ui/button";
 import { getShortAddress } from "@/shared/lib/utils";
-import { useContract } from "@/shared/hooks/useContract";
-import { toast } from "sonner";
-import { ethers } from "ethers";
 import { useWallet } from "@/shared/hooks/useWallet";
 import { useRouter } from "next/navigation";
+import BuyNFT from "@/features/BuyNFT";
 
 export const NFTItem = (item: INFTItem) => {
   const router = useRouter();
-  const { contract } = useContract();
   const { activeAccount } = useWallet();
 
-  const handleBuy = async () => {
-    if (!contract) {
-      alert("Connect your wallet");
-      return;
-    }
-
-    try {
-      const tx = await contract.executeSale(item.id, {
-        value: ethers.parseEther(item.price.toString()),
-      });
-      await tx.wait();
-      toast.success("NFT bought successfully");
-    } catch (error) {
-      console.log(error);
-      toast.error("Something went wrong");
-    }
-  };
-
   const handleOpenNFT = (e: React.MouseEvent) => {
+    e.preventDefault();
     e.stopPropagation();
     router.push(`/nfts/${item.id}`);
   };
@@ -78,24 +57,15 @@ export const NFTItem = (item: INFTItem) => {
         </p>
       </div>
       <div className="flex flex-col gap-2">
-        <p className="font-bold text-center">{item.price} ETH</p>
+        <p className="font-bold text-center">{item.price} MATIC</p>
         {activeAccount &&
         activeAccount.toLowerCase() !== item.owner.toLocaleLowerCase() ? (
-          <Button variant="default" onClick={handleBuy}>
-            Buy
-          </Button>
+          <BuyNFT id={item.id.toString()} price={item.price.toString()} />
         ) : (
           <div>
             <p className="text-center font-bold text-muted-foreground">
-              {"That's your NFT"}
+              {"That's your NFT"} {item.currentlyListed ? "(on sale)" : ""}
             </p>
-            {/* {item.currentlyListed ? (
-              <p>On sale for {item.price}</p>
-            ) : (
-              <Button variant="default" onClick={handleBuy}>
-                List on sale
-              </Button>
-            )} */}
           </div>
         )}
       </div>

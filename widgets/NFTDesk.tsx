@@ -8,6 +8,8 @@ import { NFTItem } from "@/entities/NFTItem";
 import { NFTItemSkeleton } from "@/entities/NFTItemSkeleton";
 type NFT = NFTMarketplace.ListedTokenStructOutput;
 import { motion, AnimatePresence } from "framer-motion";
+import { toast } from "sonner";
+import { ethers } from "ethers";
 
 export const NFTDesk = () => {
   const [nfts, setNfts] = useState<NFT[] | undefined>(undefined);
@@ -18,29 +20,43 @@ export const NFTDesk = () => {
   useEffect(() => {
     if (!nfts || !contract) return;
     (async () => {
-      const _items = await Promise.all(
-        nfts.map(async (nft) => {
-          const uri = await contract.tokenURI(nft.tokenId);
-          const response = await axios.get(uri);
-          return {
-            id: Number(nft.tokenId),
-            owner: nft.owner,
-            creator: nft.creator,
-            ...response.data,
-          };
-        })
-      );
-      console.log("_items", _items);
-      setItems(_items);
-      setLoading(false);
+      try {
+        const _items = await Promise.all(
+          nfts.map(async (nft) => {
+            const uri = await contract.tokenURI(nft.tokenId);
+            const response = await axios.get(uri);
+            return {
+              ...response.data,
+              id: Number(nft.tokenId),
+              owner: nft.owner,
+              creator: nft.creator,
+              price: ethers.formatEther(nft.price),
+              currentlyListed: nft.currentlyListed,
+            };
+          })
+        );
+        setItems(_items);
+        setLoading(false);
+      } catch {
+        setLoading(false);
+        toast.error("Something went wrong");
+      }
     })();
   }, [nfts, contract]);
 
   useEffect(() => {
     (async () => {
       if (!contract) return;
-      const _nfts = await contract.getListedNFTs();
-      setNfts(_nfts);
+      try {
+        const _nfts = await contract.getListedNFTs();
+        setNfts(_nfts);
+      } catch (error: any) {
+        if (error.code === "BAD_DATA") {
+          toast.error("Received bad data.");
+          return;
+        }
+        toast.error("Something went wrong");
+      }
     })();
   }, [contract]);
 
@@ -50,6 +66,9 @@ export const NFTDesk = () => {
         <p className="text-3xl font-bold">Connect your wallet</p>
       </div>
     );
+
+  if (nfts && nfts.length === 0)
+    return <p className="text-3xl font-bold">No NFTs on sale</p>;
 
   return (
     <AnimatePresence>

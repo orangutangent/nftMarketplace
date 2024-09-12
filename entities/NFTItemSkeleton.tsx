@@ -31,7 +31,7 @@ export const NFTItemSkeleton = ({
         </div>
       </div>
       <div className="flex flex-col gap-2">
-        <p className="font-bold text-center">1 ETH</p>
+        <p className="font-bold text-center">1 MATIC</p>
         <Button variant="default" onClick={() => alert("Buy")}>
           Buy
         </Button>

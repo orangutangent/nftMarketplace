@@ -6,6 +6,12 @@ export const formSchema = z.object({
   price: z
     .string()
     .refine((val) => Number(val) > 0, "Price must be greater than 0"),
+  royalty: z
+    .string()
+    .refine(
+      (val) => Number(val) >= 0 && Number(val) <= 30,
+      "Royalty must between 0 and 30"
+    ),
   image: z
     .any()
     .refine((file: File) => file, "File is required")

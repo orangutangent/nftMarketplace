@@ -4,10 +4,9 @@ import { useWallet } from "@/shared/hooks/useWallet";
 import { Button } from "@/shared/ui/button";
 import { ethers } from "ethers";
 import { useContract } from "@/shared/hooks/useContract";
-// import { NFTMarketplace__factory } from "@/shared/contract/NFTMarketplace__factory";
-import { NFTMarketplaceV2__factory as NFTMarketplace__factory } from "@/shared/contract/NFTMarketplaceV2__factory";
-// import contractData from "@/shared/contract/Marketplace.json";
-import contractData from "@/shared/contract/MarketplaceV2HHTest.json";
+import { NFTMarketplace__factory } from "@/shared/contract/NFTMarketplace__factory";
+
+import contractData from "@/shared/contract/NFTMarketplace.json";
 
 declare global {
   interface Window {
@@ -42,19 +41,6 @@ export const WalletConnect = () => {
   };
 
   useEffect(() => {
-    console.log(accounts);
-  }, [accounts]);
-
-  useEffect(() => {
-    console.log("contract: ", contract);
-  }, [contract]);
-
-  useEffect(() => {
-    console.log("activeAccount: ", activeAccount);
-  }, [activeAccount]);
-
-  useEffect(() => {
-    console.log("provider: ", provider);
     provider &&
       (async () => {
         provider?.getBalance(activeAccount).then((balance: any) => {
@@ -66,14 +52,10 @@ export const WalletConnect = () => {
         );
 
         setContract(_contract);
-
-        console.log("contract: ", contract);
       })();
   }, [provider]);
 
-  useEffect(() => {
-    console.log("balance: ", balance);
-  }, [balance]);
+  useEffect(() => {}, [balance]);
   return (
     <div className="flex gap-4 items-center ">
       {activeAccount ? (

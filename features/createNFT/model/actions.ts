@@ -14,7 +14,6 @@ export const uploadMetadataToIPFS = async (formData: FormData) => {
     const file = formData.get("file") as File;
     const name = formData.get("name") as string;
     const description = formData.get("description") as string;
-    const price = formData.get("price") as string;
     const formatedFile = new File([file], name, { type: file.type });
     const fileURL =
       pinataURL + (await pinata.upload.file(formatedFile)).IpfsHash;
@@ -25,7 +24,6 @@ export const uploadMetadataToIPFS = async (formData: FormData) => {
           name,
           description,
           image: fileURL,
-          price,
         })
       ).IpfsHash;
     return {
@@ -36,6 +34,19 @@ export const uploadMetadataToIPFS = async (formData: FormData) => {
     return {
       success: false,
       metadata: null,
+    };
+  }
+};
+
+export const unpinMetadataFromIPFS = async (hash: string) => {
+  try {
+    await pinata.unpin([hash]);
+    return {
+      success: true,
+    };
+  } catch (err) {
+    return {
+      success: false,
     };
   }
 };
