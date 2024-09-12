@@ -1,8 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { useContract } from "@/shared/hooks/useContract";
-// import { NFTMarketplace } from "@/shared/types/NFTMarketplace";
-import { NFTMarketplaceV2 as NFTMarketplace } from "@/shared/types/NFTMarketplaceV2";
+import { NFTMarketplace } from "@/shared/types/NFTMarketplace";
 import axios from "axios";
 import { NFTItem } from "@/entities/NFTItem";
 import { NFTItemSkeleton } from "@/entities/NFTItemSkeleton";

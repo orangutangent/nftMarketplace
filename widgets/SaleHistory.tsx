@@ -1,7 +1,6 @@
 "use client";
 import React from "react";
 import { useContract } from "@/shared/hooks/useContract";
-import { NFTMarketplaceV2 } from "@/shared/types/NFTMarketplaceV2";
 import { ethers } from "ethers";
 import { getShortAddress } from "@/shared/lib/utils";
 import { Spinner } from "@/shared/ui/spinner";

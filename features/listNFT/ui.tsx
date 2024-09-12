@@ -1,3 +1,4 @@
+"use client";
 import {
   Dialog,
   DialogContent,
@@ -12,7 +13,6 @@ import { toast } from "sonner";
 import { Input } from "@/shared/ui/input";
 import { Button } from "@/shared/ui/button";
 import { ethers } from "ethers";
-import { DialogClose } from "@radix-ui/react-dialog";
 
 interface ListNFTProps {
   id: string;

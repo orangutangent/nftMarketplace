@@ -1,8 +1,6 @@
 "use client";
-import { Input } from "@/shared/ui/input";
 import { NFTDesk } from "@/widgets/NFTDesk";
-import { NFTForm } from "@/features/createNFT/NFTForm/ui";
-import React, { useEffect } from "react";
+import React from "react";
 
 export default function Home() {
   return (

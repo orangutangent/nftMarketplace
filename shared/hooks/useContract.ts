@@ -1,6 +1,5 @@
 import { create } from "zustand";
-// import { NFTMarketplace } from "../../shared/types/NFTMarketplace";
-import { NFTMarketplaceV2 as NFTMarketplace } from "../types/NFTMarketplaceV2";
+import { NFTMarketplace } from "../types/NFTMarketplace";
 
 interface ContractState {
   contract: null | NFTMarketplace;

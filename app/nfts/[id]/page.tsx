@@ -43,7 +43,7 @@ function NFTPage({ params }: { params: { id: string } }) {
         toast.error("Something went wrong");
       }
     })();
-  }, [contract]);
+  }, [contract, params.id]);
 
   if (!token || !tokenMetadata) {
     return (

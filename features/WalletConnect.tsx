@@ -18,8 +18,8 @@ declare const window: any;
 
 export const WalletConnect = () => {
   const [balance, setBalance] = React.useState<number | null>(null);
+  // const [onConnect, setOnConnect] = React.useState(null);
   const {
-    accounts,
     setAccounts,
     activeAccount,
     setActiveAccount,
@@ -28,9 +28,11 @@ export const WalletConnect = () => {
   } = useWallet();
   const { contract, setContract } = useContract();
 
-  window.ethereum?.on("accountsChanged", (accounts: any) => {
-    setActiveAccount(accounts[0]);
-  });
+  useEffect(() => {
+    window.ethereum?.on("accountsChanged", (accounts: any) => {
+      setActiveAccount(accounts[0]);
+    });
+  }, []);
 
   const onConnect = async () => {
     setAccounts(
@@ -55,7 +57,6 @@ export const WalletConnect = () => {
       })();
   }, [provider]);
 
-  useEffect(() => {}, [balance]);
   return (
     <div className="flex gap-4 items-center ">
       {activeAccount ? (
