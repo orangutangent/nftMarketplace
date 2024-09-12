@@ -19,7 +19,6 @@ import {
 import { Input } from "@/shared/ui/input";
 import { FileUpploader } from "@/shared/ui/FileUpploader";
 import React from "react";
-import { uploadFileToIPFS, uploadJSONToIPFS } from "@/shared/lib/pinata";
 import { useContract } from "@/shared/hooks/useContract";
 import { ethers } from "ethers";
 import { AnimatePresence, motion } from "framer-motion";
